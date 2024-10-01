@@ -1,4 +1,4 @@
-import { createSwapy } from './node_modules/swapy/dist/swapy.js';
+import { createSwapy } from '../node_modules/swapy/dist/swapy.js';
 
 // Fonction pour trouver le dossier des favoris principaux
 const mainFolderId = "128"; // Renseignez ici l'ID du dossier des favoris principaux

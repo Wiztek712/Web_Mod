@@ -9,12 +9,12 @@
     "tabs"
   ],
   "chrome_url_overrides": {
-    "newtab": "index.html"
+    "newtab": "app/index.html"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "app/background.js"
   },
   "action": {
-    "default_popup": "index.html"
+    "default_popup": "app/index.html"
   }
 }
