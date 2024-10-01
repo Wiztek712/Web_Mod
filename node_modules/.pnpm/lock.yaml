@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      swapy:
+        specifier: ^0.4.1
+        version: 0.4.1
+
+packages:
+
+  swapy@0.4.1:
+    resolution: {integrity: sha512-8lL1CwOc3kuDVop2O/733+udNqisuwnex/8nTxYYDBaXa1pAOna/uDcOTfRK9zAdTYZ+3oStQ+QDJ7tPwU1fAA==}
+
+snapshots:
+
+  swapy@0.4.1: {}
