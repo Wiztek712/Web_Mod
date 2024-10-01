@@ -9,8 +9,15 @@
 </head>
 <body>
     <!-- Barre latérale gauche pour les favoris principaux -->
-    <div class="container" id="sidebar"  ></div>
-    <!-- data-vel-plugin="Swapy" data-v-9ba7cd63="" data-vel-plugin-key="0" data-vel-data-config-animation="dynamic" data-vel-view-id="2" data-vel-plugin-id="0" data-vel-view="root" -->
+    <div class="container" id="sidebar">
+        <!-- Laisser un div qui peremt d'initialiser swapy -->
+        <div class="slot" data-swapy-slot="trigger">
+            <div class="item" data-swapy-item="trigger">
+            </div>
+        </div>
+
+    </div>
+
     <!-- Contenu principal pour les autres favoris -->
     <div id = "main-content">
         <h1>Bienvenue</h1>

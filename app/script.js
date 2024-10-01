@@ -24,17 +24,22 @@ function createFaviconElement(url) {
 // Fonction pour afficher les favoris dans la barre latérale
 function displayMainBookmarks(bookmarks) {
     const mainBookmarksContainer = document.getElementById('sidebar');
-    mainBookmarksContainer.innerHTML = '';  // Vider le conteneur
+    mainBookmarksContainer.innerHTML = '';  // Clear the container
 
     bookmarks.forEach((bookmark, index) => {
         if (bookmark.url) {
+            // Create the slot container
             const bookmarkDiv = document.createElement('div');
             bookmarkDiv.classList.add("slot-" + (index + 1).toString());
-            bookmarkDiv.setAttribute('data-swapy-slot', index + 1); // Use 1-based index
+            
+            // Adding this line: define a 'swapy' slot by including a 'data-swapy-slot' attribute
+            bookmarkDiv.setAttribute('data-swapy-slot', index + 1); // Slot index starts at 1
 
+            // Add the bookmark content
             const div = document.createElement('div');
             div.classList.add("item-" + (index + 1).toString());
-            div.setAttribute('data-swapy-item', 100*(index + 1));
+            div.setAttribute('data-swapy-item', 100 * (index + 1));
+
             const divEl = document.createElement('div');
             const a = document.createElement('a');
             a.href = bookmark.url;
@@ -45,10 +50,13 @@ function displayMainBookmarks(bookmarks) {
             divEl.appendChild(a);
             div.appendChild(divEl);
             bookmarkDiv.appendChild(div);
+
+            // Add the bookmark to the sidebar container
             mainBookmarksContainer.appendChild(bookmarkDiv);
         }
     });
 }
+
 
 // Fonction pour afficher les autres favoris
 function displayOtherBookmarks(bookmarks) {

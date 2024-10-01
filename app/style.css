@@ -9,8 +9,10 @@ body {
 
 /* Barre latérale gauche */
 #sidebar {
-    width: 60px;
+    width: 80px;
     height : 100vh;
+    text-align: center;
+    margin-bottom: 20px;
     background-color: #333;
     color: white;
     display: flex;
@@ -25,12 +27,6 @@ body {
 #sidebar h2 {
     color: #fff;
     margin-bottom: 20px;
-}
-
-#sidebar {
-    text-align: center;
-    margin-bottom: 20px;
-    width: 100px;
 }
 
 #sidebar div a {
