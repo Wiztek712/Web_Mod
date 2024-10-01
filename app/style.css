@@ -74,6 +74,10 @@ transform: scale(1.2); /* Grossit l'icône de 20% */
     margin-bottom: 20px;
 }
 
+.bookmark-container ul {
+    margin-left: 10%;
+}
+
 .bookmark-folder {
     margin-bottom: 20px;
 }

@@ -2,44 +2,52 @@ import { createSwapy } from '../node_modules/swapy/dist/swapy.js';
 
 // Fonction pour trouver le dossier des favoris principaux
 const mainFolderId = "128"; // Renseignez ici l'ID du dossier des favoris principaux
+const defaultFaviconUrl = '../favicon.ico';
 // Google Search Bar Focus
 // window.onload = function() {
 //     document.querySelector('#google-search input[type="text"]').focus();
 // };
 
+// Handling favicon not found
+function createFaviconElement(url) {
+    const img = document.createElement('img');
+    img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${url}`; // Use site favicon
+
+    // Set up an error handler for the favicon image
+    img.onerror = function() {
+        img.src = defaultFaviconUrl; // Fallback to the default favicon on error
+    };
+
+    return img;
+}
+
 // Fonction pour afficher les favoris dans la barre latérale
 function displayMainBookmarks(bookmarks) {
-    const mainBookmarksContainer = document.getElementById('main-bookmarks');
+    const mainBookmarksContainer = document.getElementById('sidebar');
     mainBookmarksContainer.innerHTML = '';  // Vider le conteneur
 
-    let i=0;
-    for (let bookmark of bookmarks) {
+    bookmarks.forEach((bookmark, index) => {
         if (bookmark.url) {
-            i++;
             const bookmarkDiv = document.createElement('div');
-            bookmarkDiv.classList.add('sidebar-bookmark');
-            bookmarkDiv.setAttribute('data-swapy-slot', 'sidebar');
+            bookmarkDiv.classList.add("slot-" + (index + 1).toString());
+            bookmarkDiv.setAttribute('data-swapy-slot', index + 1); // Use 1-based index
 
             const div = document.createElement('div');
-            div.classList.add('sidebar-item');
-            div.setAttribute('data-swapy-item',i++);
+            div.classList.add("item-" + (index + 1).toString());
+            div.setAttribute('data-swapy-item', 100*(index + 1));
+            const divEl = document.createElement('div');
             const a = document.createElement('a');
             a.href = bookmark.url;
             a.title = bookmark.title;
 
-            const img = document.createElement('img');
-            img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${bookmark.url}`; // Utiliser l'icône du site
-            
-            //const span = document.createElement('span');
-            //span.textContent = bookmark.title;
-
+            const img = createFaviconElement(bookmark.url);
             a.appendChild(img);
-            //a.appendChild(span);
-            div.appendChild(a);
+            divEl.appendChild(a);
+            div.appendChild(divEl);
             bookmarkDiv.appendChild(div);
             mainBookmarksContainer.appendChild(bookmarkDiv);
         }
-    }
+    });
 }
 
 // Fonction pour afficher les autres favoris
@@ -56,8 +64,7 @@ function displayOtherBookmarks(bookmarks) {
                 const a = document.createElement('a');
                 a.href = bookmark.url;
                 a.textContent = bookmark.title || bookmark.url;
-                const img = document.createElement('img');
-                img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${bookmark.url}`; // Utiliser l'icône du site
+                const img = createFaviconElement(bookmark.url);
                 li.appendChild(img);
                 li.appendChild(a);
                 ul.appendChild(li);
@@ -112,10 +119,10 @@ function displayBookmarks() {
 }
 
 // Appel de la fonction pour afficher les favoris
-displayBookmarks();
+//displayBookmarks();
 
-const mainBookmarksContainer = document.getElementById('main-bookmarks');
-let draggedItem = null;
+// const mainBookmarksContainer = document.getElementById('main-bookmarks');
+// let draggedItem = null;
 
 // // Load bookmarks from localStorage if available, otherwise use default bookmarks
 // function loadBookmarks() {
@@ -142,19 +149,18 @@ let draggedItem = null;
 // Load and display bookmarks when the page loads
 window.onload = function() {
     // const bookmarks = loadBookmarks();
-    displayBookmarks();
-
-    const container = document.querySelector('.container')
+    const container = document.querySelector('.container');
         
+    displayBookmarks();
     const swapy = createSwapy(container, {
       animation: 'dynamic' // ou 'spring' ou 'none'
-    })
+    });
     
-    swapy.enable(true)
+    swapy.enable(true);
 
-    swapy.onSwap((event) => {
-        console.log(event.data.object);
-        console.log(event.data.array);
-        console.log(event.data.map);
-    })
+    // swapy.onSwap((event) => {
+    //     console.log(event.data.object);
+    //     console.log(event.data.array);
+    //     console.log(event.data.map);
+    // })
 };
