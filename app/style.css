@@ -27,32 +27,32 @@ body {
     margin-bottom: 20px;
 }
 
-.sidebar-bookmark {
+#sidebar {
     text-align: center;
     margin-bottom: 20px;
     width: 100px;
 }
 
-.sidebar-bookmark a {
+#sidebar div a {
     color: white;
     text-decoration: none;
 }
 
-.sidebar-bookmark a:hover {
+#sidebar a:hover {
     text-decoration: underline;
 }
 
-.sidebar-bookmark img {
+#sidebar img {
     display: block;
-    width: 40px;
-    height: 40px;
-    margin-left : 30%;
-    margin-top: 1%;
-    margin-bottom: 1%;
+    width: 60px;
+    height: 60px;
+    margin-left : 0%;
+    margin-top: 10%;
+    margin-bottom: 10%;
     transition: transform 0.2s ease;
 }
 
-.sidebar-bookmark img:hover {
+#sidebar img:hover {
 transform: scale(1.2); /* Grossit l'icône de 20% */
 }
 
