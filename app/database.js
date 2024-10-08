@@ -32,6 +32,18 @@ async function initIndexedDB() {
     });
 }
 
+async function getLocalFaviconBase64(faviconPath) {
+    // Fetch the local favicon file and convert it to base64
+    const response = await fetch(faviconPath);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);  // Resolve with base64 string
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);  // Read blob as a base64-encoded data URL
+    });
+}
+
 async function saveFolder(id, name) {
     const db = await initIndexedDB();
     const transaction = db.transaction(folderStoreName, 'readwrite');
@@ -56,7 +68,17 @@ async function saveBookmark(id, url, name, folderId, rank = 0) {
     const bookmarkStore = transaction.objectStore(bookmarkStoreName);
 
     const bookmark = { id, url, name, folderId, rank };
-    
+
+    try {
+        const faviconBase64 = await getFaviconBase64(bookmark.url);
+        bookmark.faviconBase64 = faviconBase64;  // Add the favicon in base64 format
+    } catch (error) {
+        console.error('Error fetching favicon, using default favicon:', error);
+        // Use default favicon if fetching fails
+        const defaultFaviconBase64 = await getLocalFaviconBase64("../favicon.ico");
+        bookmark.faviconBase64 = defaultFaviconBase64;  // Add the default favicon in base64
+    }
+
     const request = bookmarkStore.put(bookmark);
     
     // request.onsuccess = () => {
@@ -66,6 +88,18 @@ async function saveBookmark(id, url, name, folderId, rank = 0) {
     request.onerror = () => {
         console.error('Error saving bookmark:', request.error);
     };
+}
+
+async function getFaviconBase64(url) {
+    const response = await fetch(`https://www.google.com/s2/favicons?sz=64&domain_url=${url}`);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result); // This will be the base64 string
+        reader.onerror = reject;
+        reader.readAsDataURL(blob); // Convert blob to base64
+    });
 }
 
 async function getFoldersExceptFolderId(excludedFolderId) {
@@ -101,7 +135,6 @@ async function getFoldersExceptFolderId(excludedFolderId) {
         };
     });
 }
-
 
 async function getBookmarksByFolderId(folderId) {
     const db = await initIndexedDB();
@@ -150,8 +183,7 @@ async function getBookmarksExceptFolderId(excludedFolderId) {
                 }
                 cursor.continue(); // Move to the next entry
             } else {
-                // Cursor has reached the end
-                // Sort bookmarks by folderId
+
                 bookmarks.sort((a, b) => a.folderId.localeCompare(b.folderId)); // Sorting by folderId
                 resolve(bookmarks); // Resolve with the collected and sorted bookmarks
             }
