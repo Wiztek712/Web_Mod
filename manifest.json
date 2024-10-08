@@ -11,10 +11,13 @@
   "chrome_url_overrides": {
     "newtab": "app/index.html"
   },
-  "background": {
-    "service_worker": "app/background.js"
-  },
   "action": {
     "default_popup": "app/index.html"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["../favicon.ico", "node_modules/swapy/dist/swapy.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

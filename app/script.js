@@ -1,4 +1,5 @@
 import { createSwapy } from '../node_modules/swapy/dist/swapy.js';
+import { saveBookmark, saveFolder, getBookmarksByFolderId, getBookmarksExceptFolderId } from './database.js';
 
 // Fonction pour trouver le dossier des favoris principaux
 const mainFolderId = "128"; // Renseignez ici l'ID du dossier des favoris principaux
@@ -21,55 +22,78 @@ function createFaviconElement(url) {
     return img;
 }
 
+// Fonction pour récupérer les favoris
+async function gatherBookmarks(){
+    let bookmark = new Map();
+    chrome.bookmarks.getTree().then((bookmarks) => {
+        const rootBookmarks = bookmarks[0].children;
+        let rank = 0;
+        function findBookmarks(elements) { 
+            elements.forEach(element => {
+                if(element.url){
+                    saveBookmark(element.id, element.url, element.title, element.parentId, rank++);
+                }
+                else if (element.children){
+                    saveFolder(element.id, element.title);
+                    findBookmarks(element.children);
+                }
+            });
+        }
+
+        findBookmarks(rootBookmarks)
+    });
+}
+
 // Fonction pour afficher les favoris dans la barre latérale
-function displayMainBookmarks(bookmarks) {
+async function displayMainBookmarks() {
     const mainBookmarksContainer = document.getElementById('sidebar');
     mainBookmarksContainer.innerHTML = '';  // Clear the container
 
-    bookmarks.forEach((bookmark, index) => {
-        if (bookmark.url) {
-            // Create the slot container
-            const bookmarkDiv = document.createElement('div');
-            bookmarkDiv.classList.add("slot-" + (index + 1).toString());
-            
-            // Adding this line: define a 'swapy' slot by including a 'data-swapy-slot' attribute
-            bookmarkDiv.setAttribute('data-swapy-slot', index + 1); // Slot index starts at 1
-            bookmarkDiv.setAttribute('data-id', bookmark.id);
+    let sidebarBookmarks = await getBookmarksByFolderId(mainFolderId);
 
-            // Add the bookmark content
-            const div = document.createElement('div');
-            div.classList.add("item");
-            div.classList.add((index + 1).toString());
-            div.setAttribute('data-swapy-item', 100 * (index + 1));
+    sidebarBookmarks.forEach((bookmark, index) => {
+        // Create the slot container
+        const bookmarkDiv = document.createElement('div');
+        bookmarkDiv.classList.add("slot");
+        bookmarkDiv.classList.add("slot-" + (index + 1).toString());
+        bookmarkDiv.setAttribute('data-swapy-slot', index + 1); // Slot index starts at 1
+        bookmarkDiv.setAttribute('data-id', index + 1);
 
-            const divEl = document.createElement('div');
-            const a = document.createElement('a');
-            a.href = bookmark.url;
-            a.title = bookmark.title;
+        // Add the bookmark content
+        const div = document.createElement('div');
+        div.classList.add("item");
+        div.classList.add("item-" + bookmark.id);
+        div.setAttribute('data-swapy-item', bookmark.id);
 
-            const img = createFaviconElement(bookmark.url);
-            a.appendChild(img);
-            divEl.appendChild(a);
-            div.appendChild(divEl);
-            bookmarkDiv.appendChild(div);
+        const divEl = document.createElement('div');
+        const a = document.createElement('a');
+        a.href = bookmark.url;
+        a.title = bookmark.title;
 
-            // Add the bookmark to the sidebar container
-            mainBookmarksContainer.appendChild(bookmarkDiv);
-        }
+        const img = createFaviconElement(bookmark.url);
+        a.appendChild(img);
+        divEl.appendChild(a);
+        div.appendChild(divEl);
+        bookmarkDiv.appendChild(div);
+
+        // Add the bookmark to the sidebar container
+        mainBookmarksContainer.appendChild(bookmarkDiv);
     });
 }
 
 
 // Fonction pour afficher les autres favoris
-function displayOtherBookmarks(bookmarks) {
+async function displayOtherBookmarks() {
     const container = document.getElementById('bookmark-container');
     container.innerHTML = '';  // Vider le conteneur avant d'ajouter du contenu
 
+    let bookmarks = await getBookmarksExceptFolderId(mainFolderId);
+
     // Parcourir les favoris et générer les dossiers
-    function createBookmarkList(bookmarks) {
+    function createBookmarkList() {
         const ul = document.createElement('ul');
         for (let bookmark of bookmarks) {
-            if (bookmark.url) {
+            if (bookmark.url && bookmark.folderId !== mainFolderId) {
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.href = bookmark.url;
@@ -78,7 +102,7 @@ function displayOtherBookmarks(bookmarks) {
                 li.appendChild(img);
                 li.appendChild(a);
                 ul.appendChild(li);
-            } else if (bookmark.children) {
+            } else if (bookmark.children && bookmark.id !== mainFolderId) {
                 // Si c'est un dossier, on le crée aussi
                 const folder = document.createElement('div');
                 folder.classList.add('bookmark-folder');
@@ -141,18 +165,33 @@ function displayBookmarks() {
 // Load and display bookmarks when the page loads
 window.onload = function() {
     // const bookmarks = loadBookmarks();
-    const container = document.querySelector('.container');
-        
-    displayBookmarks();
-    const swapy = createSwapy(container, {
-      animation: 'dynamic' // 'dynamic' 'spring' 'none'
-    });
-    
-    swapy.enable(true);
+    try{
+        gatherBookmarks();
+        console.log('Bookmarks load');
 
-    swapy.onSwap((event) => {
-        console.log(event.data.object);
-        console.log(event.data.array);
-        console.log(event.data.map);
-    });
+        displayMainBookmarks();
+        console.log("Main bookmarks displayed");
+
+        displayOtherBookmarks();
+        console.log("Other bookmarks displayed");
+    }
+    catch(error){
+        console.error(error);
+    }
+    
+
+    // const container = document.querySelector('.container');
+        
+    // displayBookmarks();
+    // const swapy = createSwapy(container, {
+    //   animation: 'dynamic' // 'dynamic' 'spring' 'none'
+    // });
+    
+    // swapy.enable(true);
+
+    // swapy.onSwap((event) => {
+    //     console.log(event.data.object);
+    //     console.log(event.data.array);
+    //     console.log(event.data.map);
+    // });
 }
