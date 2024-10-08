@@ -4,16 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link id="default-favicon" rel="icon" href="../favicon.ico" type="image/x-icon" style="display: none;">
     <title>Page d'accueil personnalisée</title>
 </head>
 <body>
     <!-- Barre latérale gauche pour les favoris principaux -->
-    <div id="sidebar">
-        <div id="main-bookmarks" class = "container container-1"></div>
+    <div class="container" id="sidebar">
+        <!-- Laisser un div qui peremt d'initialiser swapy -->
+        <div class="slot" data-swapy-slot="trigger">
+            <div class="item" data-swapy-item="trigger">
+            </div>
+        </div>
+
     </div>
 
+
     <!-- Contenu principal pour les autres favoris -->
-    <div id="main-content">
+    <div id = "main-content">
         <h1>Bienvenue</h1>
 
         <!-- Google Search Bar -->
