@@ -1,118 +1,109 @@
 body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    height: 100vh;
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+  display: flex;
+  min-height: 100dvh;
+  font-family: Arial, sans-serif;
+  background : #f0f0f0;
+  margin: 0;
+  padding: 0;
 }
 
 /* Barre latérale gauche */
 #sidebar {
-    width: 80px;
-    height : 100vh;
-    text-align: center;
-    margin-bottom: 20px;
-    background-color: #333;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 0;
-    position: fixed;
-    overflow-y: auto;
-    justify-content: center
+  height : 100vh;
+  padding: 10px;
+  background: #242424;
+  width: 100%;
+  max-width: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  position: fixed;
+
 }
 
-#sidebar h2 {
-    color: #fff;
-    margin-bottom: 20px;
-}
-
-#sidebar div a {
-    color: white;
-    text-decoration: none;
+.item {
+  position: relative;
+  width: 100%;
+  max-width: 30px;
+  height: 100%;
+  max-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none; */
 }
 
 #sidebar a:hover {
-    text-decoration: underline;
-}
-
-#sidebar img {
-    display: block;
-    width: 60px;
-    height: 60px;
-    margin-left : 0%;
-    margin-top: 10%;
-    margin-bottom: 10%;
-    transition: transform 0.2s ease;
+  text-decoration: underline;
 }
 
 #sidebar img:hover {
-transform: scale(1.2); /* Grossit l'icône de 20% */
-}
-
-.dragging {
-    opacity: 0.5;
-}
-
-/* Conteneur principal */
-#main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-}
-
-#main-content h1 {
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.bookmark-container ul {
-    margin-left: 10%;
-}
-
-.bookmark-folder {
-    margin-bottom: 20px;
-}
-
-.bookmark-folder h2 {
-    font-size: 1.5rem;
-    color: #444;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-}
-
-.bookmark-folder ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-.bookmark-folder ul li {
-    margin-bottom: 8px;
-}
-
-.bookmark-folder ul li a {
-    text-decoration: none;
-    color: #0066cc;
-    font-size: 1.1rem;
-}
-
-.bookmark-folder ul li a:hover {
-    text-decoration: underline;
-}
-
-.bookmark-folder img{
-    width: 20px;   /* Set desired width */
-    height: 20px;  /* Set desired height */
-    object-fit: contain; /* Ensures images maintain aspect ratio without distortion */
+  transform: scale(1.2); /* Grossit l'icône de 20% */
 }
 
 /* Style des icônes*/
 img {
-    border-radius: 10px;
+  border-radius: 10px;
+}
+
+
+/* Conteneur principal */
+#main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+#main-content h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.bookmark-container ul {
+  margin-left: 10%;
+}
+
+.bookmark-folder {
+  margin-bottom: 20px;
+}
+
+.bookmark-folder h2 {
+  font-size: 1.5rem;
+  color: #444;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.bookmark-folder ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.bookmark-folder ul li {
+  margin-bottom: 8px;
+}
+
+.bookmark-folder ul li a {
+  text-decoration: none;
+  color: #0066cc;
+  font-size: 1.1rem;
+}
+
+.bookmark-folder ul li a:hover {
+  text-decoration: underline;
+}
+
+.bookmark-folder img{
+  width: 20px;   /* Set desired width */
+  height: 20px;  /* Set desired height */
+  object-fit: contain; /* Ensures images maintain aspect ratio without distortion */
 }
 
 /* Google Search Bar Styling */

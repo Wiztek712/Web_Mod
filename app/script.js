@@ -34,10 +34,12 @@ function displayMainBookmarks(bookmarks) {
             
             // Adding this line: define a 'swapy' slot by including a 'data-swapy-slot' attribute
             bookmarkDiv.setAttribute('data-swapy-slot', index + 1); // Slot index starts at 1
+            bookmarkDiv.setAttribute('data-id', bookmark.id);
 
             // Add the bookmark content
             const div = document.createElement('div');
-            div.classList.add("item-" + (index + 1).toString());
+            div.classList.add("item");
+            div.classList.add((index + 1).toString());
             div.setAttribute('data-swapy-item', 100 * (index + 1));
 
             const divEl = document.createElement('div');
@@ -94,65 +96,47 @@ function displayOtherBookmarks(bookmarks) {
     container.appendChild(createBookmarkList(bookmarks));
 }
 
-// Fonction pour parcourir l'arbre de favoris et afficher les résultats
-function displayBookmarks() {
-  chrome.bookmarks.getTree().then((bookmarks) => {
-    const rootBookmarks = bookmarks[0].children;
-
-    // Parcourir les dossiers pour trouver le dossier principal
-    let mainBookmarks = null;
-    let otherBookmarks = [];
-
-    function findBookmarks(bookmarks) {
-        for (let bookmark of bookmarks) {
-            if (bookmark.id === mainFolderId) {
-                mainBookmarks = bookmark.children;
-            } else if (bookmark.children) {
-                otherBookmarks.push(bookmark);
-                findBookmarks(bookmark.children);
-            }
-        }
+function loadBookmarkOrder(bookmarks) {
+    const savedOrder = JSON.parse(localStorage.getItem('bookmarkOrder'));
+    if (savedOrder) {
+        // Sort bookmarks based on saved order
+        bookmarks.sort((a, b) => {
+            return savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id);
+        });
     }
-
-    findBookmarks(rootBookmarks);
-
-    // Afficher les favoris principaux dans la barre latérale
-    if (mainBookmarks) {
-        displayMainBookmarks(mainBookmarks);
-    }
-
-    // Afficher les autres favoris au centre
-    displayOtherBookmarks(otherBookmarks);
-  });
+    return bookmarks;
 }
 
-// Appel de la fonction pour afficher les favoris
-//displayBookmarks();
+function displayBookmarks() {
+    chrome.bookmarks.getTree().then((bookmarks) => {
+      const rootBookmarks = bookmarks[0].children;
+  
+      let mainBookmarks = null;
+      let otherBookmarks = [];
+  
+      function findBookmarks(bookmarks) {
+          for (let bookmark of bookmarks) {
+              if (bookmark.id === mainFolderId) {
+                  mainBookmarks = bookmark.children;
+              } else if (bookmark.children) {
+                  otherBookmarks.push(bookmark);
+                  findBookmarks(bookmark.children);
+              }
+          }
+      }
+  
+      findBookmarks(rootBookmarks);
+  
+      if (mainBookmarks) {
+          // Load saved order before displaying
+          mainBookmarks = loadBookmarkOrder(mainBookmarks);
+          displayMainBookmarks(mainBookmarks);
+      }
+  
+      displayOtherBookmarks(otherBookmarks);
+    });
+}
 
-// const mainBookmarksContainer = document.getElementById('main-bookmarks');
-// let draggedItem = null;
-
-// // Load bookmarks from localStorage if available, otherwise use default bookmarks
-// function loadBookmarks() {
-//     const savedOrder = localStorage.getItem('bookmarkOrder');
-//     if (savedOrder) {
-//         return JSON.parse(savedOrder);
-//     }
-//     return bookmarks;
-// }
-
-// // Save the current order of bookmarks to localStorage
-// function saveBookmarkOrder() {
-//     const bookmarkOrder = [];
-//     document.querySelectorAll('.sidebar-bookmark').forEach(bookmark => {
-//         bookmarkOrder.push({
-//             id: bookmark.getAttribute('data-id'),
-//             title: bookmark.getAttribute('data-title'),
-//             url: bookmark.getAttribute('data-url')
-//         });
-//     });
-//     localStorage.setItem('bookmarkOrder', JSON.stringify(bookmarkOrder));
-// }
 
 // Load and display bookmarks when the page loads
 window.onload = function() {
@@ -161,14 +145,14 @@ window.onload = function() {
         
     displayBookmarks();
     const swapy = createSwapy(container, {
-      animation: 'dynamic' // ou 'spring' ou 'none'
+      animation: 'dynamic' // 'dynamic' 'spring' 'none'
     });
     
     swapy.enable(true);
 
-    // swapy.onSwap((event) => {
-    //     console.log(event.data.object);
-    //     console.log(event.data.array);
-    //     console.log(event.data.map);
-    // })
-};
+    swapy.onSwap((event) => {
+        console.log(event.data.object);
+        console.log(event.data.array);
+        console.log(event.data.map);
+    });
+}
