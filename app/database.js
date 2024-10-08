@@ -68,25 +68,40 @@ async function saveBookmark(id, url, name, folderId, rank = 0) {
     };
 }
 
-async function getFolderById(folderId) {
+async function getFoldersExceptFolderId(excludedFolderId) {
     const db = await initIndexedDB();
     const transaction = db.transaction(folderStoreName, 'readonly');
     const folderStore = transaction.objectStore(folderStoreName);
-    
-    const request = folderStore.get(folderId);
-    
-    request.onsuccess = () => {
-        if (request.result) {
-            // console.log('Folder found:', request.result);
-        } else {
-            console.log('Folder not found with id:', folderId);
-        }
-    };
 
-    request.onerror = () => {
-        console.error('Error fetching folder:', request.error);
-    };
+    return new Promise((resolve, reject) => {
+        const folders = [];
+
+        const request = folderStore.openCursor(); // Open a cursor for all folder entries
+
+        request.onsuccess = (event) => {
+            const cursor = event.target.result;
+
+            if (cursor) {
+                // Check if the current folder's id does not match the excludedFolderId
+                if (cursor.value.id !== excludedFolderId) {
+                    folders.push(cursor.value); // Push the folder if it doesn't match
+                }
+                cursor.continue(); // Continue to the next folder
+            } else {
+                // Cursor has reached the end
+                // Sort bookmarks by folderId
+                folders.sort((a, b) => a.id.localeCompare(b.id)); // Sorting by folderId
+                resolve(folders); // Resolve with the collected and sorted bookmarks
+            }
+        };
+
+        request.onerror = () => {
+            console.error('Error fetching folders:', request.error);
+            reject(request.error); // Reject the promise in case of error
+        };
+    });
 }
+
 
 async function getBookmarksByFolderId(folderId) {
     const db = await initIndexedDB();
@@ -136,7 +151,9 @@ async function getBookmarksExceptFolderId(excludedFolderId) {
                 cursor.continue(); // Move to the next entry
             } else {
                 // Cursor has reached the end
-                resolve(bookmarks); // Resolve with the collected bookmarks
+                // Sort bookmarks by folderId
+                bookmarks.sort((a, b) => a.folderId.localeCompare(b.folderId)); // Sorting by folderId
+                resolve(bookmarks); // Resolve with the collected and sorted bookmarks
             }
         };
 
@@ -148,6 +165,4 @@ async function getBookmarksExceptFolderId(excludedFolderId) {
 }
 
 
-
-
-export {saveBookmark,saveFolder, getBookmarksByFolderId, getBookmarksExceptFolderId}
+export {saveBookmark, saveFolder, getFoldersExceptFolderId, getBookmarksByFolderId, getBookmarksExceptFolderId}

@@ -1,5 +1,5 @@
 import { createSwapy } from '../node_modules/swapy/dist/swapy.js';
-import { saveBookmark, saveFolder, getBookmarksByFolderId, getBookmarksExceptFolderId } from './database.js';
+import { saveBookmark, saveFolder, getBookmarksByFolderId, getFoldersExceptFolderId, getBookmarksExceptFolderId } from './database.js';
 
 // Fonction pour trouver le dossier des favoris principaux
 const mainFolderId = "128"; // Renseignez ici l'ID du dossier des favoris principaux
@@ -87,37 +87,42 @@ async function displayOtherBookmarks() {
     const container = document.getElementById('bookmark-container');
     container.innerHTML = '';  // Vider le conteneur avant d'ajouter du contenu
 
-    let bookmarks = await getBookmarksExceptFolderId(mainFolderId);
+    let folders = await getFoldersExceptFolderId(mainFolderId);
 
     // Parcourir les favoris et générer les dossiers
-    function createBookmarkList() {
-        const ul = document.createElement('ul');
-        for (let bookmark of bookmarks) {
-            if (bookmark.url && bookmark.folderId !== mainFolderId) {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = bookmark.url;
-                a.textContent = bookmark.title || bookmark.url;
-                const img = createFaviconElement(bookmark.url);
-                li.appendChild(img);
-                li.appendChild(a);
-                ul.appendChild(li);
-            } else if (bookmark.children && bookmark.id !== mainFolderId) {
-                // Si c'est un dossier, on le crée aussi
-                const folder = document.createElement('div');
-                folder.classList.add('bookmark-folder');
-                const title = document.createElement('h2');
-                title.textContent = bookmark.title || "Dossier sans titre";
-                folder.appendChild(title);
-                folder.appendChild(createBookmarkList(bookmark.children));
-                container.appendChild(folder);
+    async function createBookmarkList() {
+        const Div = document.createElement('div');
+        folders.forEach(async (folder,index) => {
+            const folderDiv = document.createElement('div');
+            folderDiv.classList.add('bookmark-folder');
+            const title = document.createElement('h2');
+            title.textContent = folder.name || "Dossier sans titre";
+            folderDiv.appendChild(title);
+            
+            let bookmarks = await getBookmarksByFolderId(folder.id);
+            const ul = document.createElement('ul');
+            for (let bookmark of bookmarks) {
+                if (bookmark) {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = bookmark.url;
+                    a.textContent = bookmark.title || bookmark.url;
+                    const img = createFaviconElement(bookmark.url);
+                    li.appendChild(img);
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                }
             }
-        }
-        return ul;
+            folderDiv.appendChild(ul);
+
+            Div.appendChild(folderDiv);
+        });
+        return Div;
     }
 
     // Ajout des favoris au DOM
-    container.appendChild(createBookmarkList(bookmarks));
+    let bookmarks = await createBookmarkList()
+    container.appendChild(bookmarks);
 }
 
 function loadBookmarkOrder(bookmarks) {
