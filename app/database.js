@@ -32,18 +32,6 @@ async function initIndexedDB() {
     });
 }
 
-async function getLocalFaviconBase64(faviconPath) {
-    // Fetch the local favicon file and convert it to base64
-    const response = await fetch(faviconPath);
-    const blob = await response.blob();
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);  // Resolve with base64 string
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);  // Read blob as a base64-encoded data URL
-    });
-}
-
 async function saveFolder(id, name) {
     const db = await initIndexedDB();
     const transaction = db.transaction(folderStoreName, 'readwrite');
@@ -69,16 +57,6 @@ async function saveBookmark(id, url, name, folderId, rank = 0) {
 
     const bookmark = { id, url, name, folderId, rank };
 
-    try {
-        const faviconBase64 = await getFaviconBase64(bookmark.url);
-        bookmark.faviconBase64 = faviconBase64;  // Add the favicon in base64 format
-    } catch (error) {
-        console.error('Error fetching favicon, using default favicon:', error);
-        // Use default favicon if fetching fails
-        const defaultFaviconBase64 = await getLocalFaviconBase64("../favicon.ico");
-        bookmark.faviconBase64 = defaultFaviconBase64;  // Add the default favicon in base64
-    }
-
     const request = bookmarkStore.put(bookmark);
     
     // request.onsuccess = () => {
@@ -88,18 +66,6 @@ async function saveBookmark(id, url, name, folderId, rank = 0) {
     request.onerror = () => {
         console.error('Error saving bookmark:', request.error);
     };
-}
-
-async function getFaviconBase64(url) {
-    const response = await fetch(`https://www.google.com/s2/favicons?sz=64&domain_url=${url}`);
-    const blob = await response.blob();
-
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result); // This will be the base64 string
-        reader.onerror = reject;
-        reader.readAsDataURL(blob); // Convert blob to base64
-    });
 }
 
 async function getFoldersExceptFolderId(excludedFolderId) {
@@ -196,5 +162,75 @@ async function getBookmarksExceptFolderId(excludedFolderId) {
     });
 }
 
+async function updateRanksInAFolder(bookmarkslist){
+    const db = await initIndexedDB();
+    const transaction = db.transaction(bookmarkStoreName, 'readwrite');
+    const bookmarkStore = transaction.objectStore(bookmarkStoreName);
 
-export {saveBookmark, saveFolder, getFoldersExceptFolderId, getBookmarksByFolderId, getBookmarksExceptFolderId}
+
+    bookmarkslist.forEach((bookmark, index) => {
+        const id = bookmark.id;
+        let getBookmark = objectStore.get(id);
+        getBookmark.rank = index;
+    });
+    
+}
+
+async function checkEmptyness(){
+    const db = await initIndexedDB();
+    const transaction = db.transaction(bookmarkStoreName, 'readonly');
+    const bookmarkStore = transaction.objectStore(bookmarkStoreName);
+
+    const count = await new Promise((resolve, reject) => {
+        const countRequest = bookmarkStore.count();
+        
+        countRequest.onsuccess = function() {
+            resolve(countRequest.result);
+        };
+
+        countRequest.onerror = function() {
+            reject(countRequest.error);
+        };
+    });
+
+    // Check if the database is empty
+    if (count === 0) {
+        console.log("The database is empty.");
+        return true;
+    } else {
+        return false;
+    }
+}
+
+async function synchroDB(chromeBookmarks){
+    const db = await initIndexedDB();
+    const transaction = db.transaction([bookmarkStoreName], "readwrite");
+    const objectStore = transaction.objectStore(bookmarkStoreName);
+
+    const flatChromeBookmarks = flattenBookmarks(chromeBookmarks);  // Flatten the bookmark tree
+
+    // Fetch all IndexedDB bookmarks
+    const dbBookmarks = await getAllBookmarksFromDB(objectStore);
+
+    // Convert the DB bookmarks to an easily searchable format
+    const dbBookmarkIds = new Set(dbBookmarks.map(b => b.id));
+
+    // Add Chrome bookmarks to the DB if they aren't already in there
+    for (const bookmark of flatChromeBookmarks) {
+        if (!dbBookmarkIds.has(bookmark.id)) {
+            await addBookmarkToDB(objectStore, bookmark);
+        }
+    }
+
+    // Remove outdated bookmarks from IndexedDB
+    for (const dbBookmark of dbBookmarks) {
+        const chromeBookmarkExists = flatChromeBookmarks.some(b => b.id === dbBookmark.id);
+        if (!chromeBookmarkExists) {
+            await removeBookmarkFromDB(objectStore, dbBookmark.id);
+        }
+    }
+
+    console.log("Bookmarks successfully synchronized!");
+}
+
+export {saveBookmark, saveFolder, getFoldersExceptFolderId, getBookmarksByFolderId, getBookmarksExceptFolderId, updateRanksInAFolder, checkEmptyness, synchroDB}

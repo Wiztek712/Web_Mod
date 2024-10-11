@@ -1,5 +1,5 @@
 import { createSwapy } from '../node_modules/swapy/dist/swapy.js';
-import { saveBookmark, saveFolder, getBookmarksByFolderId, getFoldersExceptFolderId, getBookmarksExceptFolderId } from './database.js';
+import { saveBookmark, saveFolder, getBookmarksByFolderId, getFoldersExceptFolderId, getBookmarksExceptFolderId, updateRanksInAFolder, checkEmptyness, synchroDB } from './database.js';
 
 // Fonction pour trouver le dossier des favoris principaux
 const mainFolderId = "128"; // Renseignez ici l'ID du dossier des favoris principaux
@@ -12,17 +12,16 @@ const defaultFaviconUrl = '../favicon.ico';
 // Handling favicon not found
 function createFaviconElement(url) {
     const img = document.createElement('img');
-    img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${url}`; // Use site favicon
+    img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${url}`;
 
-    // Set up an error handler for the favicon image
     img.onerror = function() {
-        img.src = defaultFaviconUrl; // Fallback to the default favicon on error
+        img.src = defaultFaviconUrl;
     };
 
     return img;
 }
 
-// Fonction pour récupérer les favoris
+// Fonction pour initialiser les favoris
 async function gatherBookmarks(){
     let bookmark = new Map();
     chrome.bookmarks.getTree().then((bookmarks) => {
@@ -81,7 +80,6 @@ async function displayMainBookmarks() {
     });
 }
 
-
 // Fonction pour afficher les autres favoris
 async function displayOtherBookmarks() {
     const container = document.getElementById('bookmark-container');
@@ -125,54 +123,26 @@ async function displayOtherBookmarks() {
     container.appendChild(bookmarks);
 }
 
-function loadBookmarkOrder(bookmarks) {
-    const savedOrder = JSON.parse(localStorage.getItem('bookmarkOrder'));
-    if (savedOrder) {
-        // Sort bookmarks based on saved order
-        bookmarks.sort((a, b) => {
-            return savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id);
-        });
-    }
-    return bookmarks;
+// Fonction pour vérifier si la base de données est vide
+async function isDBEmpty(){
+    const bool = await checkEmptyness();
+    return bool;
 }
 
-function displayBookmarks() {
-    chrome.bookmarks.getTree().then((bookmarks) => {
-      const rootBookmarks = bookmarks[0].children;
-  
-      let mainBookmarks = null;
-      let otherBookmarks = [];
-  
-      function findBookmarks(bookmarks) {
-          for (let bookmark of bookmarks) {
-              if (bookmark.id === mainFolderId) {
-                  mainBookmarks = bookmark.children;
-              } else if (bookmark.children) {
-                  otherBookmarks.push(bookmark);
-                  findBookmarks(bookmark.children);
-              }
-          }
-      }
-  
-      findBookmarks(rootBookmarks);
-  
-      if (mainBookmarks) {
-          // Load saved order before displaying
-          mainBookmarks = loadBookmarkOrder(mainBookmarks);
-          displayMainBookmarks(mainBookmarks);
-      }
-  
-      displayOtherBookmarks(otherBookmarks);
-    });
+// Fonction pour synchronise la base de données.
+async function synchro(){
+    await synchroDB(chromeBookmarks);
 }
-
 
 // Load and display bookmarks when the page loads
-window.onload = function() {
-    // const bookmarks = loadBookmarks();
+window.onload = async function() {
+
     try{
-        gatherBookmarks();
-        console.log('Bookmarks load');
+        const isEmpty = await isDBEmpty();
+        if(isEmpty){
+            gatherBookmarks();
+            console.log('Bookmarks load');
+        }
 
         displayMainBookmarks();
         console.log("Main bookmarks displayed");
