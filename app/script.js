@@ -1,5 +1,6 @@
 import { createSwapy } from '../node_modules/swapy/dist/swapy.js';
 import { saveBookmark, saveFolder, getBookmarksByFolderId, getFoldersExceptFolderId, getBookmarksExceptFolderId } from './database.js';
+import { storeFavicon, getFavicon } from './favicon.js';
 
 // Fonction pour trouver le dossier des favoris principaux
 const mainFolderId = "128"; // Renseignez ici l'ID du dossier des favoris principaux
@@ -10,9 +11,11 @@ const defaultFaviconUrl = '../favicon.ico';
 // };
 
 // Handling favicon not found
-function createFaviconElement(url) {
+async function createFaviconElement(url) {
     const img = document.createElement('img');
     img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${url}`; // Use site favicon
+
+    await storeFavicon(url);
 
     // Set up an error handler for the favicon image
     img.onerror = function() {
@@ -51,7 +54,7 @@ async function displayMainBookmarks() {
 
     let sidebarBookmarks = await getBookmarksByFolderId(mainFolderId);
 
-    sidebarBookmarks.forEach((bookmark, index) => {
+    sidebarBookmarks.forEach(async (bookmark, index) => {
         // Create the slot container
         const bookmarkDiv = document.createElement('div');
         bookmarkDiv.classList.add("slot");
@@ -70,7 +73,7 @@ async function displayMainBookmarks() {
         a.href = bookmark.url;
         a.title = bookmark.title;
 
-        const img = createFaviconElement(bookmark.url);
+        const img = await createFaviconElement(bookmark.url);
         a.appendChild(img);
         divEl.appendChild(a);
         div.appendChild(divEl);
