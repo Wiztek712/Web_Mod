@@ -67,7 +67,7 @@ async function displayMainBookmarks() {
         const divEl = document.createElement('div');
         const a = document.createElement('a');
         a.href = bookmark.url;
-        a.title = bookmark.title;
+        a.title = bookmark.name;
 
         const img = createFaviconElement(bookmark.url);
         a.appendChild(img);
@@ -104,7 +104,7 @@ async function displayOtherBookmarks() {
                     const li = document.createElement('li');
                     const a = document.createElement('a');
                     a.href = bookmark.url;
-                    a.textContent = bookmark.title || bookmark.url;
+                    a.textContent = bookmark.name || bookmark.url;
                     const img = createFaviconElement(bookmark.url);
                     li.appendChild(img);
                     li.appendChild(a);
@@ -129,10 +129,38 @@ async function isDBEmpty(){
     return bool;
 }
 
-// Fonction pour synchronise la base de données.
-async function synchro(){
-    await synchroDB(chromeBookmarks);
+// Recursive function to flatten Chrome bookmark tree
+function flattenBookmarks(bookmarkNodes, flatList = []) {
+    
+    if (!Array.isArray(bookmarkNodes)) {
+        bookmarkNodes = [bookmarkNodes];  // Convert to array if it's a single object
+    }
+
+    for (const node of bookmarkNodes) {
+        if (node.url) {
+            // It's a bookmark (not a folder), push to the flatList
+            flatList.push({
+                id: node.id,
+                title: node.title,
+                url: node.url,
+                parentId: node.parentId || null // Optionally capture parent folder ID
+            });
+        }
+        if (node.children) {
+            // If the node has children (it's a folder), recurse through them
+            flattenBookmarks(node.children, flatList);
+        }
+    }
+    return flatList;
 }
+
+
+// Fonction pour synchronise la base de données.
+document.getElementById("refreshButton").addEventListener("click", async () => {
+    const chromeBookmarks = chrome.bookmarks.getTree();
+    const chromeBookmarksFlatten = flattenBookmarks(chromeBookmarks); 
+    await synchroDB(chromeBookmarksFlatten);
+});
 
 // Load and display bookmarks when the page loads
 window.onload = async function() {

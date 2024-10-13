@@ -3,6 +3,7 @@ const dbName = 'BookmarksDB';
 const folderStoreName = 'foldersStore';
 const bookmarkStoreName = 'bookmarksStore';
 
+// Function to init the data base and retrieve the socket
 async function initIndexedDB() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(dbName, 1);
@@ -32,6 +33,7 @@ async function initIndexedDB() {
     });
 }
 
+// Function to register a folder into the database
 async function saveFolder(id, name) {
     const db = await initIndexedDB();
     const transaction = db.transaction(folderStoreName, 'readwrite');
@@ -50,6 +52,7 @@ async function saveFolder(id, name) {
     };
 }
 
+// Function to save a bookmark into the database
 async function saveBookmark(id, url, name, folderId, rank = 0) {
     const db = await initIndexedDB();
     const transaction = db.transaction(bookmarkStoreName, 'readwrite');
@@ -66,6 +69,15 @@ async function saveBookmark(id, url, name, folderId, rank = 0) {
     request.onerror = () => {
         console.error('Error saving bookmark:', request.error);
     };
+}
+
+// Function to save a folder into the database
+async function removeBookmarkFromDB(id){
+    const db = await initIndexedDB();
+    const transaction = db.transaction(bookmarkStoreName, 'readwrite');
+    const bookmarkStore = transaction.objectStore(bookmarkStoreName);
+
+    let deleteRequest = bookmarkStore.delete(id);
 }
 
 async function getFoldersExceptFolderId(excludedFolderId) {
@@ -202,15 +214,20 @@ async function checkEmptyness(){
     }
 }
 
-async function synchroDB(chromeBookmarks){
+async function synchroDB(flatChromeBookmarks){
     const db = await initIndexedDB();
     const transaction = db.transaction([bookmarkStoreName], "readwrite");
-    const objectStore = transaction.objectStore(bookmarkStoreName);
+    const bookmarkStore = transaction.objectStore(bookmarkStoreName);
 
-    const flatChromeBookmarks = flattenBookmarks(chromeBookmarks);  // Flatten the bookmark tree
-
-    // Fetch all IndexedDB bookmarks
-    const dbBookmarks = await getAllBookmarksFromDB(objectStore);
+    const dbBookmarks = await new Promise((resolve, reject) => {
+        const request = bookmarkStore.getAll();
+        request.onsuccess = function() {
+            resolve(request.result);  // Resolve with the result (an array of bookmarks)
+        };
+        request.onerror = function(event) {
+            reject(event.target.error);  // Reject the promise on error
+        };
+    });
 
     // Convert the DB bookmarks to an easily searchable format
     const dbBookmarkIds = new Set(dbBookmarks.map(b => b.id));
@@ -218,7 +235,7 @@ async function synchroDB(chromeBookmarks){
     // Add Chrome bookmarks to the DB if they aren't already in there
     for (const bookmark of flatChromeBookmarks) {
         if (!dbBookmarkIds.has(bookmark.id)) {
-            await addBookmarkToDB(objectStore, bookmark);
+            await saveBookmark(bookmark.id, bookmark.url, bookmark.name, bookmark.folderId);
         }
     }
 
@@ -226,7 +243,7 @@ async function synchroDB(chromeBookmarks){
     for (const dbBookmark of dbBookmarks) {
         const chromeBookmarkExists = flatChromeBookmarks.some(b => b.id === dbBookmark.id);
         if (!chromeBookmarkExists) {
-            await removeBookmarkFromDB(objectStore, dbBookmark.id);
+            await removeBookmarkFromDB(dbBookmark.id);
         }
     }
 
