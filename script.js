@@ -1,5 +1,5 @@
 // Fonction pour trouver le dossier des favoris principaux
-const mainFolderId = "-AsCWKV4LM_D"; // Renseignez ici l'ID du dossier des favoris principaux
+const mainFolderId = "44"; // Renseignez ici l'ID du dossier des favoris principaux
 
 // Google Search Bar Focus
 // window.onload = function() {
@@ -8,78 +8,128 @@ const mainFolderId = "-AsCWKV4LM_D"; // Renseignez ici l'ID du dossier des favor
 
 // Fonction pour afficher les favoris dans la barre latérale
 function displayMainBookmarks(bookmarks) {
-    const mainBookmarksContainer = document.getElementById('main-bookmarks');
+    const mainBookmarksContainer = document.getElementById('bookmark-icons');
     mainBookmarksContainer.innerHTML = '';  // Vider le conteneur
 
     for (let bookmark of bookmarks) {
         if (bookmark.url) {
-            const bookmarkDiv = document.createElement('div');
-            bookmarkDiv.classList.add('sidebar-bookmark');
-            
-            const a = document.createElement('a');
-            a.href = bookmark.url;
-            a.title = bookmark.title;
-
             const img = document.createElement('img');
             img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${bookmark.url}`; // Utiliser l'icône du site
-            
-            //const span = document.createElement('span');
-            //span.textContent = bookmark.title;
-
-            a.appendChild(img);
-            //a.appendChild(span);
-            bookmarkDiv.appendChild(a);
-            mainBookmarksContainer.appendChild(bookmarkDiv);
-
-            // Add drag-and-drop event listeners
-            bookmarkDiv.addEventListener('dragstart', handleDragStart);
-            bookmarkDiv.addEventListener('dragend', handleDragEnd);
-            bookmarkDiv.addEventListener('dragover', handleDragOver);
-            bookmarkDiv.addEventListener('drop', handleDrop);
+            img.alt  
+            img.alt = bookmark.title;
+            img.title = bookmark.title;
+            img.addEventListener('click', () => {
+                window.open(bookmark.url, '_blank');
+            });
+            mainBookmarksContainer.appendChild(img);
         }
     }
 }
 
-// Fonction pour afficher les autres favoris
+// Add hover effect to control column appearance and body resizing
+const bookmarkColumn = document.getElementById('bookmark-column');
+const body = document.body;
+
+// Show/hide bookmark column on hover
+bookmarkColumn.addEventListener('mouseenter', () => {
+    body.classList.add('bookmark-column-open');
+});
+bookmarkColumn.addEventListener('mouseleave', () => {
+    body.classList.remove('bookmark-column-open');
+});
+
 function displayOtherBookmarks(bookmarks) {
     const container = document.getElementById('bookmark-container');
-    container.innerHTML = '';  // Vider le conteneur avant d'ajouter du contenu
+    container.innerHTML = ''; // Clear the container
 
-    // Parcourir les favoris et générer les dossiers
-    function createBookmarkList(bookmarks) {
-        const ul = document.createElement('ul');
+    // Create a grid of folder squares
+    function createFolderGrid(bookmarks) {
+        const grid = document.createElement('div');
+        grid.classList.add('folder-grid');
+
+        for (let bookmark of bookmarks) {
+            if (bookmark.children) { // Only process folders
+                const folderDiv = document.createElement('div');
+                folderDiv.classList.add('folder-item');
+
+                // Folder icon
+                const icon = document.createElement('div');
+                icon.classList.add('folder-icon');
+                icon.innerHTML = '📁'; // Unicode folder icon (you can replace this with an image)
+                folderDiv.appendChild(icon);
+
+                // Folder title
+                const title = document.createElement('div');
+                title.classList.add('folder-title');
+                title.textContent = bookmark.title || "Unnamed Folder";
+                folderDiv.appendChild(title);
+
+                // Add click event to show bookmarks
+                folderDiv.addEventListener('click', () => {
+                    const folderContent = document.createElement('div');
+                    folderContent.classList.add('folder-content');
+                    folderContent.innerHTML = ''; // Clear previous content
+                    folderContent.appendChild(createBookmarkGrid(bookmark.children));
+
+                    // Clear the container and show bookmarks
+                    container.innerHTML = '';
+                    const backButton = createBackButton(() => {
+                        container.innerHTML = '';
+                        container.appendChild(createFolderGrid(bookmarks));
+                    });
+                    container.appendChild(backButton);
+                    container.appendChild(folderContent);
+                });
+
+                grid.appendChild(folderDiv);
+            }
+        }
+
+        return grid;
+    }
+
+    // Create a grid of bookmarks for a folder
+    function createBookmarkGrid(bookmarks) {
+        const grid = document.createElement('div');
+        grid.classList.add('bookmark-grid');
         for (let bookmark of bookmarks) {
             if (bookmark.url) {
-                const li = document.createElement('li');
+                const bookmarkDiv = document.createElement('div');
+                bookmarkDiv.classList.add('bookmark-item');
+
+                const img = document.createElement('img');
+                img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${bookmark.url}`;
+                bookmarkDiv.appendChild(img);
+
                 const a = document.createElement('a');
                 a.href = bookmark.url;
                 a.textContent = bookmark.title || bookmark.url;
-                const img = document.createElement('img');
-                img.src = `https://www.google.com/s2/favicons?sz=64&domain_url=${bookmark.url}`; // Utiliser l'icône du site
-                li.appendChild(img);
-                li.appendChild(a);
-                ul.appendChild(li);
-            } else if (bookmark.children) {
-                // Si c'est un dossier, on le crée aussi
-                const folder = document.createElement('div');
-                folder.classList.add('bookmark-folder');
-                const title = document.createElement('h2');
-                title.textContent = bookmark.title || "Dossier sans titre";
-                folder.appendChild(title);
-                folder.appendChild(createBookmarkList(bookmark.children));
-                container.appendChild(folder);
+                a.target = '_blank';
+                bookmarkDiv.appendChild(a);
+
+                grid.appendChild(bookmarkDiv);
             }
         }
-        return ul;
+        return grid;
     }
 
-    // Ajout des favoris au DOM
-    container.appendChild(createBookmarkList(bookmarks));
+    // Create a back button
+    function createBackButton(onClick) {
+        const backButton = document.createElement('button');
+        backButton.textContent = '⬅ Back';
+        backButton.classList.add('back-button');
+        backButton.addEventListener('click', onClick);
+        return backButton;
+    }
+
+    // Add folders to the DOM
+    container.appendChild(createFolderGrid(bookmarks));
 }
 
 // Fonction pour parcourir l'arbre de favoris et afficher les résultats
 function displayBookmarks() {
-    browser.bookmarks.getTree().then((bookmarks) => {
+    // browser.bookmarks.getTree().then((bookmarks) => {
+    chrome.bookmarks.getTree((bookmarks) => {
         const rootBookmarks = bookmarks[0].children;
 
         // Parcourir les dossiers pour trouver le dossier principal
@@ -123,48 +173,21 @@ function loadBookmarks() {
     if (savedOrder) {
         return JSON.parse(savedOrder);
     }
-    return bookmarks;
+    return chrome.bookmarks;
 }
 
-// Save the current order of bookmarks to localStorage
-function saveBookmarkOrder() {
-    const bookmarkOrder = [];
-    document.querySelectorAll('.sidebar-bookmark').forEach(bookmark => {
-        bookmarkOrder.push({
-            id: bookmark.getAttribute('data-id'),
-            title: bookmark.getAttribute('data-title'),
-            url: bookmark.getAttribute('data-url')
-        });
-    });
-    localStorage.setItem('bookmarkOrder', JSON.stringify(bookmarkOrder));
-}
-
-// Handle drag start event
-function handleDragStart(event) {
-    draggedItem = event.target;
-    event.target.classList.add('dragging');
-}
-
-// Handle drag end event
-function handleDragEnd(event) {
-    event.target.classList.remove('dragging');
-    draggedItem = null;
-    saveBookmarkOrder(); // Save the new order when the drag ends
-}
-
-// Handle drag over event
-function handleDragOver(event) {
-    event.preventDefault();
-    const draggingOver = event.target.closest('.sidebar-bookmark');
-    if (draggingOver && draggedItem !== draggingOver) {
-        mainBookmarksContainer.insertBefore(draggedItem, draggingOver.nextSibling);
-    }
-}
-
-// Handle drop event
-function handleDrop(event) {
-    event.preventDefault();
-}
+// // Save the current order of bookmarks to localStorage
+// function saveBookmarkOrder() {
+//     const bookmarkOrder = [];
+//     document.querySelectorAll('.sidebar-bookmark').forEach(bookmark => {
+//         bookmarkOrder.push({
+//             id: bookmark.getAttribute('data-id'),
+//             title: bookmark.getAttribute('data-title'),
+//             url: bookmark.getAttribute('data-url')
+//         });
+//     });
+//     localStorage.setItem('bookmarkOrder', JSON.stringify(bookmarkOrder));
+// }
 
 // Load and display bookmarks when the page loads
 window.onload = function() {
