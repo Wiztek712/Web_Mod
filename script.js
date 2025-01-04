@@ -6,6 +6,20 @@ const mainFolderId = "44"; // Renseignez ici l'ID du dossier des favoris princip
 //     document.querySelector('#google-search input[type="text"]').focus();
 // };
 
+
+function updateClock() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('fr-FR', { 
+        hour: '2-digit', 
+        minute: '2-digit'
+    });
+    document.getElementById('time').textContent = time;
+}
+
+// Update clock every second
+setInterval(updateClock, 1000);
+updateClock(); // Initial call
+
 // Fonction pour afficher les favoris dans la barre latérale
 function displayMainBookmarks(bookmarks) {
     const mainBookmarksContainer = document.getElementById('bookmark-icons');
@@ -176,18 +190,20 @@ function loadBookmarks() {
     return chrome.bookmarks;
 }
 
-// // Save the current order of bookmarks to localStorage
-// function saveBookmarkOrder() {
-//     const bookmarkOrder = [];
-//     document.querySelectorAll('.sidebar-bookmark').forEach(bookmark => {
-//         bookmarkOrder.push({
-//             id: bookmark.getAttribute('data-id'),
-//             title: bookmark.getAttribute('data-title'),
-//             url: bookmark.getAttribute('data-url')
-//         });
-//     });
-//     localStorage.setItem('bookmarkOrder', JSON.stringify(bookmarkOrder));
-// }
+const backgroundImages = [
+    'images/picture1.jpeg',
+    'images/picture2.jpeg'
+];
+
+// Set random background when new tab opens
+function setRandomBackground() {
+    const randomImage = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+    document.body.style.backgroundImage = `url(${randomImage})`;
+}
+
+// Call when page loads
+document.addEventListener('DOMContentLoaded', setRandomBackground);
+
 
 // Load and display bookmarks when the page loads
 window.onload = function() {
