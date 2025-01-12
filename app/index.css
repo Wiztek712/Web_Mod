@@ -1,4 +1,4 @@
-body, html {
+body {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -61,14 +61,14 @@ body, html {
     transform: scale(1.2);
 }
 
-
-/* ################################################### Main content area */
+/* ################################################### General container for folders and bookmarks */
 #main-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    width: 100%;
+    height: 100vh;
     gap: 50px;
     transition: margin-left 0.3s ease;
 }
@@ -77,10 +77,15 @@ body.bookmark-column-open #main-content {
     margin-left: 80px; /* Add space when column is shown */
 }
 
+#bookmark-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+}
 
-
-/* ################################################### General container for folders and bookmarks */
-.folder-grid,
 .bookmark-grid {
     display: flex;
     flex-wrap: wrap;
@@ -88,6 +93,15 @@ body.bookmark-column-open #main-content {
     gap: 16px;
     padding: 10px;
     margin-top: auto;
+}
+
+#folder-grid {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding: 10px;
+    margin-top: auto;
+    width: 100%;
 }
 
 .folder-item {
@@ -182,6 +196,41 @@ body.bookmark-column-open #main-content {
 
 .back-button:hover {
     background-color: #0056b3;
+}
+
+/* ################################################ Nav Buttons */
+
+.nav-btn {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    background-color: #333;
+    transform: scale(1.1);
+}
+
+.nav-btn:hover svg path {
+    stroke: #fff;
+}
+
+.nav-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.nav-btn svg path {
+    stroke: #333;
+    transition: stroke 0.3s ease;
 }
 
  /* ################################################### Clock */

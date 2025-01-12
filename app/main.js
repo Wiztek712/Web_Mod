@@ -31,3 +31,7 @@ chrome.bookmarks.getTree((bookmarks) => {
 
 initClock();
 initBackground();
+
+// setInterval(() => {
+//     window.location.reload(); // Recharge la page
+//   }, 5000); // Intervalle en millisecondes (ici 5 secondes)
