@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>Page d'accueil personnalisée</title>
+</head>
+<body>
+    <!-- Barre latérale gauche pour les favoris principaux -->
+    <div id="bookmark-column">
+        <div id="bookmark-icons"></div>
+    </div>
+
+    <!-- Contenu principal pour les autres favoris -->
+    <div id="main-content">
+
+        <div id="clock-container">
+            <div id="time"></div>
+        </div>
+
+        <!-- Google Search Bar -->
+        <!-- <div id="google-search">
+            <form action="https://www.google.com/search" method="get" target="_blank">
+                <input type="text" name="q" placeholder="Rechercher sur Google">
+                <input type="submit" value="Recherche">
+            </form>
+        </div> -->
+
+        
+        <div id="bookmark-container">
+            <button id="prev" class="nav-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M15 5l-7 7 7 7" stroke="#333" stroke-width="2" fill="none" />
+              </svg></button>
+            <div id="folder-grid"></div>
+            <button id="next" class="nav-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M9 5l7 7-7 7" stroke="#333" stroke-width="2" fill="none" />
+              </svg></button>
+        </div>
+        
+        
+    </div>
+
+    <script type="module" src="main.js"></script>
+    <!-- <script src="script.js"></script> -->
+    
+</body>
+</html>

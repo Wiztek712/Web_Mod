@@ -1,0 +1,246 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    transition: margin-left 0.3s ease, background-image 0.5s ease;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* ################################################### Bookmark column container */
+#bookmark-column {
+    position: fixed;
+    top: 0;
+    left: -80px;
+    width: 80px;
+    height: 100%;
+    background-color: #4e4e4e59;
+    /* border-right: 2px solid #ccc; */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 100%;
+}
+
+#bookmark-column:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -20px; /* Creates 20px wide trigger area */
+    width: 20px;
+    height: 100%;
+}
+
+/* Trigger the column on hover */
+#bookmark-column:hover {
+    left: 0;
+    border-right: 2px solid #ccc;
+}
+
+/* Bookmark icons */
+#bookmark-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+#bookmark-icons img {
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    border-radius: 8px;
+}
+#bookmark-icons img:hover {
+    transform: scale(1.2);
+}
+
+/* ################################################### General container for folders and bookmarks */
+#main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    gap: 50px;
+    transition: margin-left 0.3s ease;
+}
+
+body.bookmark-column-open #main-content {
+    margin-left: 80px; /* Add space when column is shown */
+}
+
+#bookmark-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+}
+
+.bookmark-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center the grid horizontally */
+    gap: 16px;
+    padding: 10px;
+    margin-top: auto;
+}
+
+#folder-grid {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding: 10px;
+    margin-top: auto;
+    width: 100%;
+}
+
+.folder-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    background-color: #f9f9f973;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    text-align: center;
+}
+
+.folder-item:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.05);
+}
+
+/* Folder icon and title */
+.folder-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center; /* Centers icon content vertically */
+    justify-content: center; /* Centers icon content horizontally */
+}
+
+.folder-title {
+    font-size: 14px;
+    text-align: center;
+    color: #333;
+    max-width: 100%; /* Prevents overflow */
+    word-wrap: break-word; /* Handles long folder names gracefully */
+}
+
+/* Bookmark items */
+.bookmark-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bookmark-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Bookmark images and links */
+.bookmark-item img {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+}
+
+.bookmark-item a {
+    font-size: 12px;
+    color: #007bff;
+    text-decoration: none;
+    text-align: center;
+}
+
+.bookmark-item a:hover {
+    text-decoration: underline;
+}
+
+/* Back button */
+.back-button {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+/* ################################################ Nav Buttons */
+
+.nav-btn {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    background-color: #333;
+    transform: scale(1.1);
+}
+
+.nav-btn:hover svg path {
+    stroke: #fff;
+}
+
+.nav-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.nav-btn svg path {
+    stroke: #333;
+    transition: stroke 0.3s ease;
+}
+
+ /* ################################################### Clock */
+#clock-container {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#time {
+    font-size: 6rem;
+    font-weight: 300;
+    font-family: 'Arial', sans-serif;
+}
