@@ -14,7 +14,24 @@
 
     <!-- Contenu principal pour les autres favoris -->
     <div id="main-content">
+        <button class="redirect-button" id="open-settings">Open Settings</button>
 
+        <!-- Modal (Settings) -->
+        <div class="modal" id="settings-modal">
+            <div class="modal-content">
+            <h2>Settings</h2>
+            <label for="main-folder">Main Folder Name:</label>
+            <input type="text" id="main-folder" placeholder="Enter main folder name">
+
+            <label for="background-folder">Background Images Folder:</label>
+            <input type="file" id="background-folder" webkitdirectory directory multiple>
+
+            <div class="buttons">
+                <button class="save" id="save-settings">Save</button>
+                <button class="cancel" id="cancel-settings">Cancel</button>
+            </div>
+            </div>
+        </div>
         <div id="clock-container">
             <div id="time"></div>
         </div>
@@ -29,7 +46,7 @@
 
         
         <div id="bookmark-container">
-            <button id="prev" class="nav-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <button id="prev" class="nav-btn"><svg xmlns="icons/arrow-left.svg" viewBox="0 0 24 24" width="24" height="24">
                 <path d="M15 5l-7 7 7 7" stroke="#333" stroke-width="2" fill="none" />
               </svg></button>
             <div id="folder-grid"></div>
@@ -42,6 +59,7 @@
     </div>
 
     <script type="module" src="main.js"></script>
+    <script src="settings.js"></script>
     <!-- <script src="script.js"></script> -->
     
 </body>
